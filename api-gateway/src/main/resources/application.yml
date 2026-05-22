@@ -1,0 +1,56 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: API-GATEWAY
+
+  cloud:
+    gateway:
+
+      discovery:
+        locator:
+          enabled: true
+
+      routes:
+
+        # AUTH SERVICE (PUBLIC)
+        - id: auth-service
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/auth/**
+
+        # MATCH SERVICE (PROTECTED)
+        - id: match-service
+          uri: lb://MATCH-SERVICE
+          predicates:
+            - Path=/matches/**
+
+          filters:
+            - JwtAuthenticationFilter
+
+        # PLAYER SERVICE (PROTECTED)
+        - id: player-service
+          uri: lb://PLAYER-SERVICE
+          predicates:
+            - Path=/players/**
+
+          filters:
+            - JwtAuthenticationFilter
+
+        # SCORE SERVICE (PROTECTED)
+        - id: score-service
+          uri: lb://SCORE-SERVICE
+          predicates:
+            - Path=/score/**
+
+          filters:
+            - JwtAuthenticationFilter
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+  instance:
+    prefer-ip-address: true
